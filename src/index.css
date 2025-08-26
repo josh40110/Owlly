@@ -1,0 +1,56 @@
+/* index.css（全域）
+影響整個文件層級與 HTML 頁面元素（:root、body、a、h1、button...）
+想改全站背景、字體、標題、按鈕等基礎樣式：改 index.css
+*/
+
+/*
+字體相關
+font-family: system-ui, Avenir, Helvetica, Arial, sans-serif 指定字體優先順序，會依序使用系統字體 
+font-weight 設定字體粗細 400正常、500中、700粗體
+font-synthesis 禁止瀏覽器自動模擬粗體或斜體，保持字體原貌
+font-size: 3.2em 字體大小為基準字體的 3.2 倍
+line-height 行距跟字體大小的比例
+color 文字顏色
+text-rendering optimizeLegibility 提升字體的可讀性（例如更好的字距與連字處理）
+text-decoration inherit 沿用父元素的文字裝飾（避免出現預設底線）
+
+樣式相關
+background-color 背景色
+margin: 0 移除瀏覽器預設的外邊距
+display: flex 使用彈性排版
+place-items: center  水平、垂直置中
+min-width: 320px 最小寬度 320px，避免太窄導致排版錯亂
+min-height: 100vh 高度至少佔滿整個螢幕高度
+
+*/
+:root {
+  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  color: rgba(255, 255, 255, 0.87);
+  background-color:  rgba(255, 255, 255, 0.87);
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+}
+
+a {
+  font-weight: 500;
+  color: #646cff;
+  text-decoration: inherit;
+}
+a:hover {
+  color: #535bf2;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+}
+
+h1 {
+  font-size: 3.2em;
+  line-height: 1.1;
+}
