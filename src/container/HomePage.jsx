@@ -1,13 +1,10 @@
 import * as React from 'react';
 import Box from '@mui/material/Box';
-import CustomizedList from '../component/sidebar'
-import SearchBox from '../component/searchbox'
 import Typography from '@mui/material/Typography';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
-import CardActions from '@mui/material/CardActions';
-import Button from '@mui/material/Button';
-import { useEffect, useState } from "react";
+import { useEffect, useState,useRef } from "react";
+import Sparkline, { generateMockSeries } from '../component/Sparkline';
 
 
 
@@ -17,9 +14,12 @@ export default function HomePage() {
   const [chg, setChg] = useState(null);
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState("");
-
+  const hasFetched = useRef(false);//可防止一直打API
 
   useEffect(() => {
+    if (hasFetched.current) return;
+    hasFetched.current = true;
+
     const url = "/twse/v1/exchangeReport/MI_INDEX?response=json&type=IND&date=20250826";
     fetch(url)
       .then(r => {
@@ -55,33 +55,58 @@ export default function HomePage() {
   const up = (pct ?? 0) >= 0;
   
   return (
-    <Box sx={{ 
-      m: 0, 
-      p: 0  // 加上 padding
-    }}>
+    <Box sx={{ m: 0, p: 0 }}>
       <Box sx={{
-          height: '30vh',  // 強制設定為視窗高度
-          display:'flex',
-          alignItems: 'flex-start', //垂直方向
-          justifyContent: 'flex-start', //水平方向
-          pl:3
+        height: '30vh',
+        display:'flex',
+        alignItems: 'flex-start',
+        justifyContent: 'flex-start',
+        pl:3
       }}>
-       <Card sx={{ minWidth: '20vh',height: '20vh',bgcolor: '#2a2f45'}}>
-      <CardContent>
-        <Typography gutterBottom sx={{ fontSize: 15 }}>
-        TSE
-        </Typography>
-        <Typography sx={{ color: '#ffffff' ,fontSize:20,pb:1}}>加權指數</Typography>
-        <Typography sx={{ color: '#ff0000',fontSize:20,pb:1}}>{value}</Typography>
-        <Typography sx={{color: up?'#ef4444':'#22c55e',fontSize:17}}variant="body2">
-        {up ? "▲" : "▼"} {chg ?? "-"} ({pct}%)
-        </Typography>
+        <Card sx={{
+          minWidth: 320,
+          width: 360,
+          bgcolor: '#0f172a',
+          borderRadius: 3,
+          boxShadow: '0 0 0 1px rgba(148,163,184,0.08), 0 8px 24px rgba(0,0,0,0.35)'
+        }}>
+          <CardContent sx={{ p: 2.5 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
+              <Typography sx={{ color: '#cbd5e1', fontSize: 14 }}>加權指數</Typography>
+              <Box sx={{
+                px: 1,
+                py: 0.25,
+                borderRadius: 999,
+                fontSize: 12,
+                fontWeight: 600,
+                color: up ? '#ef4444' : '#16a34a',
+                bgcolor: up ? 'rgba(239,68,68,0.15)' : 'rgba(34,197,94,0.15)'
+              }}>
+                {up ? `+${pct ?? 0}%` : `${pct ?? 0}%`}
+              </Box>
+            </Box>
 
-      </CardContent>
-    </Card>
+            <Typography sx={{ color: '#fff', fontSize: 32, fontWeight: 700, lineHeight: 1, mb: 0.5 }}>
+              {value}
+            </Typography>
+            <Typography sx={{ color: '#94a3b8', fontSize: 13, mb: 1.5 }}>
+              Last 30 days
+            </Typography>
 
+            <Sparkline
+              data={generateMockSeries(30, value || 10000, 0.005)}
+              width={316}
+              height={64}
+              stroke={up ? '#ef4444' : '#16a34a'}
+              fill={up ? 'rgba(239,68,68,0.15)' : 'rgba(34,197,94,0.15)'}
+            />
+
+            <Typography sx={{ color: up ? '#ef4444' : '#16a34a', fontSize: 14, mt: 1 }}>
+              {up ? '▲' : '▼'} {chg ?? '-'} ({pct}%)
+            </Typography>
+          </CardContent>
+        </Card>
       </Box>
-
     </Box>
   );
 }
