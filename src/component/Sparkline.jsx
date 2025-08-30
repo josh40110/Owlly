@@ -1,6 +1,7 @@
 import * as React from 'react';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
+import { useState } from 'react'; // 新增於 useState 群組附近
 
 // 產生 30 天假資料（簡易隨機漫步）
 export function generateMockSeries(points = 30, start = 100, volatility = 0.025) {
@@ -27,6 +28,7 @@ export default function Sparkline({
   const svgRef = React.useRef(null);
   const [tooltip, setTooltip] = React.useState(null);
   const [mousePos, setMousePos] = React.useState({ x: 0, y: 0 });
+  const [popup, setPopup] = useState(null); // { x, y, value, pct, chg, up }
 
   const min = data.length ? Math.min(...data) : 0;
   const max = data.length ? Math.max(...data) : 0;
@@ -147,6 +149,61 @@ export default function Sparkline({
             </Typography>
           </Box>
         </Box>
+      )}
+
+      {/* 懸浮視窗：點擊卡片出現，點外面區域關閉 */}
+      {popup && (
+        <>
+          {/* 背景遮罩（點擊關閉） */}
+          <Box
+            onClick={() => setPopup(null)}
+            sx={{ position: 'fixed', inset: 0, zIndex: 1100 }}
+          />
+          {/* 浮層本體（跟隨點擊位置，在游標右下角） */}
+          <Box
+            sx={{
+              position: 'fixed',
+              left: Math.min(popup.x, window.innerWidth - 260),
+              top: Math.min(popup.y, window.innerHeight - 140),
+              zIndex: 1200,
+              bgcolor: '#111827',
+              borderRadius: 2,
+              boxShadow: '0 12px 30px rgba(0,0,0,0.45)',
+              border: '1px solid rgba(75,85,99,0.4)',
+              p: 2,
+              minWidth: 220
+            }}
+          >
+            <Typography sx={{ color: '#e5e7eb', fontSize: 14, fontWeight: 600, mb: 1 }}>
+              加權指數（點擊資訊）
+            </Typography>
+            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
+              <Typography sx={{ color: '#fff', fontSize: 22, fontWeight: 700 }}>
+                {popup.value?.toLocaleString()}
+              </Typography>
+              <Box
+                sx={{
+                  px: 1,
+                  py: 0.25,
+                  borderRadius: 999,
+                  fontSize: 12,
+                  fontWeight: 700,
+                  color: popup.up ? '#ef4444' : '#16a34a',
+                  bgcolor: popup.up ? 'rgba(239,68,68,0.15)' : 'rgba(34,197,94,0.15)'
+                }}
+              >
+                {popup.up ? `+${popup.pct ?? 0}%` : `${popup.pct ?? 0}%`}
+              </Box>
+            </Box>
+
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              <Box sx={{ width: 14, height: 3, bgcolor: popup.up ? '#ef4444' : '#16a34a', borderRadius: 0.5 }} />
+              <Typography sx={{ color: popup.up ? '#ef4444' : '#16a34a', fontSize: 14 }}>
+                {popup.up ? '▲' : '▼'} {popup.chg ?? '-'}（{popup.pct}%）
+              </Typography>
+            </Box>
+          </Box>
+        </>
       )}
     </Box>
   );
